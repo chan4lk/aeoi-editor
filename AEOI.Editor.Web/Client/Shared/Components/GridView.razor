@@ -1,97 +1,150 @@
-﻿@* The actual data source operations depend on the app and must be implemented in the events the listview provides.
-    Implementing beautiful rendering is up to the application, this example shows the basics of the available events and commands.
-*@
-
-<TelerikListView Data="@ListViewData" Pageable="true"
-                 OnCreate="@CreateHandler" OnDelete="@DeleteHandler" OnUpdate="@UpdateHandler"
-                 OnEdit="@EditHandler" OnCancel="@CancelHandler">
-    <EditTemplate>
-        <div style="border: 1px solid green; margin: 10px; padding: 10px; display: inline-block;">
-            <TelerikTextBox @bind-Value="@context.Name" Label="Name" /><br />
-            <TelerikDropDownList Data="@Teams" @bind-Value="@context.Team" />
-            <ListViewCommandButton Command="Save" Icon="save">Save</ListViewCommandButton>
-            <ListViewCommandButton Command="Cancel" Icon="cancel">Cancel</ListViewCommandButton>
-        </div>
-    </EditTemplate>
+﻿@using AEOI.Editor.Web.Shared
+@inject HttpClient Http
+<TelerikListView Data=@Data
+                 Pageable="true"
+                 Height="500px"
+                 OnUpdate="@UpdateHandler"
+                 OnDelete="@DeleteHandler"
+                 OnCreate="@CreateHandler">
+    <HeaderTemplate>
+        <ListViewCommandButton Command="Add">Add</ListViewCommandButton>
+    </HeaderTemplate>
     <Template>
-        <div style="border: 1px solid black; margin: 10px; padding: 10px; display: inline-block;">
-            Employee: @context.Id <br />
-            Name: @context.Name in team: @context.Team
-            <ListViewCommandButton Command="Edit" Icon="edit">Edit</ListViewCommandButton>
-            <ListViewCommandButton Command="Delete" Icon="delete">Delete</ListViewCommandButton>
+        <div class="k-card k-card-horizontal">
+            <div class="k-card-body">
+                <div class="k-hbox k-justify-content-between k-flex-wrap">
+                    <div class="product-name">
+                        <h4 class="k-card-title">@context.AccountNumber</h4>
+                        <h5 class="k-card-subtitle">@context.AccountHolderType</h5>
+                    </div>
+                    <div class="product-price">
+                        <div>Unit price: @context.Person.FirstName</div>
+                        <div>Quantity per unit: @context.Person.LastName</div>
+                    </div>
+                </div>
+            </div>
+            <div class="product-actions">
+                <ListViewCommandButton Command="Edit">Edit</ListViewCommandButton>
+                <ListViewCommandButton Command="Delete">Delete</ListViewCommandButton>
+            </div>
         </div>
     </Template>
-    <HeaderTemplate>
-        <ListViewCommandButton Command="Add" Icon="plus">Add Employee</ListViewCommandButton>
-        <p>In this sample, the first item will not open for editing because of the code in the OnEdit handler</p>
-    </HeaderTemplate>
+    <EditTemplate>
+        <div class="k-card k-card-horizontal">
+            <div class="k-card-body">
+                <div class="k-hbox k-justify-content-between k-flex-wrap">
+                    <div class="product-name">
+                        <label class="editor-label">Name</label>
+                        <TelerikTextBox @bind-Value="@context.AccountNumber.Value" Class="mb-sm"></TelerikTextBox>
+
+                        <label class="editor-label">Account Holder Type</label>
+                        <TelerikDropDownList Data="@AccountHolderTypes"
+                                        @bind-Value="@context.AccountHolderType"
+                                        DefaultText="Choose Type"
+                                        Width="12.4em">
+                        </TelerikDropDownList>
+                    </div>
+                    <div class="product-price">
+                        <label class="editor-label">Account Balance</label>
+                        <TelerikNumericTextBox @bind-Value="@context.AccountBalance.Value" Class="mb-sm"></TelerikNumericTextBox>
+
+                        <label class="editor-label">First Name</label>
+                        <TelerikTextBox @bind-Value="@context.Person.FirstName"></TelerikTextBox>
+
+                        <label class="editor-label">Last Name</label>
+                        <TelerikTextBox @bind-Value="@context.Person.LastName"></TelerikTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="product-actions">
+                <ListViewCommandButton Command="Save">Save</ListViewCommandButton>
+                <ListViewCommandButton Command="Cancel">Cancel</ListViewCommandButton>
+            </div>
+        </div>
+    </EditTemplate>
 </TelerikListView>
 
-@code{
-    List<Employee> ListViewData { get; set; }
-    List<string> Teams { get; set; }
-
-    async Task UpdateHandler(ListViewCommandEventArgs args)
-    {
-        Employee item = (Employee)args.Item;
-
-        // perform actual data source operation here through your service
-        await ListService.Update(item);
-
-        // update the local view-model data with the service data
-        await GetListViewData();
-    }
-
-    async Task DeleteHandler(ListViewCommandEventArgs args)
-    {
-        Employee item = (Employee)args.Item;
-
-        // perform actual data source operation here through your service
-        await ListService.Delete(item);
-
-        // update the local view-model data with the service data
-        await GetListViewData();
-    }
-
-    async Task CreateHandler(ListViewCommandEventArgs args)
-    {
-        Employee item = (Employee)args.Item;
-
-        // perform actual data source operation here through your service
-        await ListService.Create(item);
-
-        // update the local view-model data with the service data
-        await GetListViewData();
-    }
-
-    async Task EditHandler(ListViewCommandEventArgs e)
-    {
-        Employee currItem = e.Item as Employee;
-
-        // prevent opening an item for editing on condition
-        if (currItem.Id < 2)
-        {
-            e.IsCancelled = true;
-        }
-    }
-
-    async Task CancelHandler(ListViewCommandEventArgs e)
-    {
-        Employee changedItem = e.Item as Employee;
-        // this is the item as the user edited it, but chose to cancel editing/inserting
-        Console.WriteLine($"user changed item {changedItem.Id} to have Name: {changedItem.Name} and Team: {changedItem.Team}");
-    }
-
-    // data and models follow
-
-    async Task GetListViewData()
-    {
-        ListViewData = await ListService.Read();
-        Teams = await ListService.GetTeams();
-    }
+@code {
+    public IEnumerable<AEOIUKSubmissionFIReportSubmissionFIReturnAccountData> Data { get; set; }
+    public IEnumerable<string> AccountHolderTypes { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await GetListViewData();
+         var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>("api/Data/GetData?filename=AEOI_ v2.0_Example_New_Submission 1.xml");
+         Data = data.Submission.FIReturn.AccountData;
+         AccountHolderTypes = new string[] { "Passive Non Financial Entity with Controlling Person(s)", "Reportable Person (Individual)" };
+    }
+
+
+    private void LoadData()
+    {
+        
+        
+    }
+
+    public void UpdateHandler(ListViewCommandEventArgs args)
+    {
+       
+    }
+
+    public void DeleteHandler(ListViewCommandEventArgs args)
+    {
+       
+    }
+
+    public void CreateHandler(ListViewCommandEventArgs args)
+    {
+       
     }
 }
+
+<style>
+    .k-listview-header {
+        padding: 10px 20px;
+    }
+
+    .k-card {
+        padding: 10px 20px;
+        border-width: 0 0 1px 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .k-card-body {
+        padding: 0;
+    }
+
+    .k-card:last-child {
+        border-bottom: 0;
+    }
+
+    .k-card .k-card-title {
+        padding: 0;
+        font-size: 1.2em;
+        font-weight: bold;
+        line-height: normal;
+    }
+
+    .k-card-subtitle {
+        font-size: 1em;
+        margin-bottom: 0;
+    }
+
+    .product-name {
+        width: 50%;
+        min-width: 200px;
+        padding: 5px 0;
+    }
+
+    .product-price {
+        width: 50%;
+        min-width: 200px;
+        padding: 5px 0;
+    }
+
+    .editor-label {
+        margin: 0;
+        font-size: .875em;
+        display: block;
+    }
+</style>
