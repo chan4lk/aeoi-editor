@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -9,45 +10,69 @@ namespace AEOI.Editor.Web.Shared
     public class ValidationService
     {
         private readonly HttpClient client;
-
+        private readonly ILogger<ValidationService> logger;
         private List<string> result = new List<string>();
+        private XmlSchema typesSchema;
+        private XmlSchema schema;
 
-        public ValidationService(HttpClient client)
+        public ValidationService(HttpClient client, ILogger<ValidationService> logger)
         {
             this.client = client;
+            this.logger = logger;
         }
 
         public async Task<List<string>> Validate(AEOIUKSubmissionFIReport report)
         {
-            result.Clear();
-            var typesStream = await client.GetStreamAsync("Templates/isofatcatypes_v1.1.xsd");  
-            XmlSchema typesSchema = XmlSchema.Read(typesStream, SchemaValidationHandler);
+            logger.LogInformation("Validate started");
 
-            var byteOfTheFile = await client.GetStreamAsync("Templates/uk_aeoi_submission_v2.0.xsd");
-            XmlSchema schema = XmlSchema.Read(byteOfTheFile, SchemaValidationHandler);           
+            try
+            {
+                result.Clear();
 
-            var doc = SerializeToXml(report);
+                await LoadSchema();
 
-            doc.Schemas.Add(schema);
-            doc.Schemas.Add(typesSchema);
+                var doc = SerializeToXml(report);
 
-            doc.Schemas.Compile();
+                doc.Schemas.Add(schema);
+                doc.Schemas.Add(typesSchema);
 
-            doc.Validate(ValidationEventHandler);
+                doc.Schemas.Compile();
+
+                doc.Validate(ValidationEventHandler);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Validate failed", ex);
+                throw;
+            }
+            
+
+            logger.LogInformation("Validate Completed");
 
 
             return result;
         }
 
-
-        private static void SchemaValidationHandler(object sender, ValidationEventArgs e)
+        private async Task LoadSchema()
         {
-            System.Console.WriteLine(e.Message);
+            if (typesSchema == null)
+            {
+                var typesStream = await client.GetStreamAsync("Templates/isofatcatypes_v1.1.xsd");
+                typesSchema = XmlSchema.Read(typesStream, SchemaValidationHandler);
+
+                var byteOfTheFile = await client.GetStreamAsync("Templates/uk_aeoi_submission_v2.0.xsd");
+                schema = XmlSchema.Read(byteOfTheFile, SchemaValidationHandler);
+            }
         }
 
-        private static void DocumentValidationHandler(object sender, ValidationEventArgs e)
+        private void SchemaValidationHandler(object sender, ValidationEventArgs e)
         {
-            System.Console.WriteLine(e.Message);
+            logger.LogInformation(e.Message);
+        }
+
+        private void DocumentValidationHandler(object sender, ValidationEventArgs e)
+        {
+            logger.LogInformation(e.Message);
         }
 
         public XmlDocument SerializeToXml<T>(T source)
@@ -70,7 +95,7 @@ namespace AEOI.Editor.Web.Shared
             {
                 if (type == XmlSeverityType.Error)
                 {
-                    Console.WriteLine(e.Message);
+                    logger.LogInformation(e.Message);
                 }
             }
 

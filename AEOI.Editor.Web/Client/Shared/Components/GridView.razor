@@ -4,6 +4,8 @@
 <div class="controls">
     <label class="editor-label">File Name</label>
     <TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
+    <label class="editor-label">Show Errors</label>
+    <TelerikToggleButton @bind-Selected="@ShowErrors">Enabled - @ShowErrors</TelerikToggleButton>
     <label class="editor-label">Large Data set</label>
     <TelerikToggleButton @bind-Selected="@IsLarge">Enabled - @IsLarge</TelerikToggleButton>
     <label class="editor-label">Number of Records</label>
@@ -105,8 +107,11 @@
 </TelerikListView>
 
 <div class="controls">
-    <label class="editor-label">Errors</label>
-    <TelerikTextArea AutoSize Class="full-width" @bind-Value="@Errors"></TelerikTextArea>
+    @if (ShowErrors)
+    {
+        <label class="editor-label">Errors</label>
+        <TelerikTextArea AutoSize Class="full-width" @bind-Value="@Errors"></TelerikTextArea>
+    }
 </div>
 
 @code {
@@ -115,6 +120,7 @@
     private AEOIUKSubmissionFIReport report;
     public string FileName { get; set; } = "AEOI_ v2.0_Example_New_Submission 1.xml";
     public bool IsLarge { get; set; }
+    public bool ShowErrors { get; set; }
     public bool IsNotLarge => !IsLarge;
     public int Records { get; set; }
     public string Errors { get; set; } = string.Empty;
