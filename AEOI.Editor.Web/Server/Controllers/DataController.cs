@@ -21,7 +21,7 @@ namespace AEOI.Editor.Web.Server.Controllers
         }
 
         [HttpGet("[action]")]
-        public AEOIUKSubmissionFIReport GetData(string fileName)
+        public AEOIUKSubmissionFIReport GetData(string fileName, bool large, int records = 100)
         {
             try
             {
@@ -34,6 +34,14 @@ namespace AEOI.Editor.Web.Server.Controllers
                 StreamReader reader = new StreamReader(path);
                 var report = (AEOIUKSubmissionFIReport)serializer.Deserialize(reader);
                 reader.Close();
+
+                if (large)
+                {
+                    report.Submission.FIReturn.AccountData = Enumerable.Range(0, records).Select(i =>
+                    {
+                        return report.Submission.FIReturn.AccountData[0];
+                    }).ToArray();
+                }
 
                 return report;
             }

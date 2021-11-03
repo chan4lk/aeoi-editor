@@ -1,10 +1,15 @@
 ﻿@using AEOI.Editor.Web.Shared
 @inject HttpClient Http
-
-<label class="editor-label">File Name</label>
-<TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
-
-<TelerikButton OnClick="@LoadData" Primary="true">Load data</TelerikButton>
+<div class="controls">
+    <label class="editor-label">File Name</label>
+    <TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
+    <label class="editor-label">Large Data set</label>
+    <TelerikToggleButton  @bind-Selected="@IsLarge" >Enabled - @IsLarge</TelerikToggleButton>
+    <label class="editor-label">Number of Records</label>
+    <TelerikNumericTextBox Enabled="@IsLarge" Class="full-width" @bind-Value="@Records"></TelerikNumericTextBox>
+    <br />
+    <TelerikButton OnClick="@LoadData" Primary="true">Load data</TelerikButton>
+</div>
 
 <TelerikListView Data=@Data
                  Pageable="true"
@@ -102,6 +107,9 @@
     public IEnumerable<AEOIUKSubmissionFIReportSubmissionFIReturnAccountData> Data { get; set; }
     public IEnumerable<string> AccountHolderTypes { get; set; }
     public string FileName { get; set; } = "AEOI_ v2.0_Example_New_Submission 1.xml";
+    public bool IsLarge { get; set; }
+    public bool IsNotLarge => !IsLarge;
+    public int Records { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,16 +117,14 @@
         AccountHolderTypes = new string[] { "Passive Non Financial Entity with Controlling Person(s)", "Reportable Person (Individual)" };
     }
 
-
     private async Task LoadData()
     {
-        var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}");
+        var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}&large={IsLarge}&records={Records}");
         Data = data.Submission.FIReturn.AccountData;
     }
 
     public void UpdateHandler(ListViewCommandEventArgs args)
     {
-
     }
 
     public void DeleteHandler(ListViewCommandEventArgs args)
@@ -141,7 +147,15 @@
         padding: 10px 20px;
     }
 
-    .k-card {
+    .controls{
+        padding: 10px 20px;
+        border-width: 1px 1px 1px 1px;
+        border-radius: 0;
+        border-style: solid;
+        box-shadow: none;
+    }
+
+    .k-card{
         padding: 10px 20px;
         border-width: 0 0 1px 0;
         border-radius: 0;
