@@ -1,8 +1,14 @@
 ﻿@using AEOI.Editor.Web.Shared
 @inject HttpClient Http
+
+<label class="editor-label">File Name</label>
+<TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
+
+<TelerikButton OnClick="@LoadData" Primary="true">Load data</TelerikButton>
+
 <TelerikListView Data=@Data
                  Pageable="true"
-                 Height="500px"
+                 Height="500px"                 
                  OnUpdate="@UpdateHandler"
                  OnDelete="@DeleteHandler"
                  OnCreate="@CreateHandler">
@@ -14,26 +20,26 @@
             <div class="k-card-body">
                 <div class="k-hbox k-justify-content-between k-flex-wrap">
                     <div class="product-name">
-                        @if(context.AccountNumber != null)
+                        @if (context.AccountNumber != null)
                         {
                             <h4 class="k-card-title">@context.AccountNumber.Value</h4>
                         }
-                        
+
                         <h5 class="k-card-subtitle">@context.AccountHolderType</h5>
                     </div>
                     <div class="product-price">
                         @if (context.Person != null)
                         {
-                             <div>First Name: @context.Person.FirstName</div>
+                            <div>First Name: @context.Person.FirstName</div>
                             <div>Last Name: @context.Person.LastName</div>
                         }
 
                         @if (context.Organisation != null && context.Organisation.ControllingPerson != null)
                         {
-                             <div>First Name: @context.Organisation.ControllingPerson.Person.FirstName</div>
+                            <div>First Name: @context.Organisation.ControllingPerson.Person.FirstName</div>
                             <div>Last Name: @context.Organisation.ControllingPerson.Person.LastName</div>
                         }
-                       
+
                     </div>
                 </div>
             </div>
@@ -55,16 +61,16 @@
                         }
                         <label class="editor-label">Account Holder Type</label>
                         <TelerikDropDownList Data="@AccountHolderTypes"
-                                        @bind-Value="@context.AccountHolderType"
-                                        DefaultText="Choose Type"
-                                        Width="12.4em">
+                                             @bind-Value="@context.AccountHolderType"
+                                             DefaultText="Choose Type"
+                                             Width="12.4em">
                         </TelerikDropDownList>
                     </div>
                     <div class="product-price">
                         <label class="editor-label">Account Balance</label>
                         <TelerikNumericTextBox @bind-Value="@context.AccountBalance.Value" Class="mb-sm"></TelerikNumericTextBox>
 
-                         @if (context.Person != null)
+                        @if (context.Person != null)
                         {
                             <label class="editor-label">First Name</label>
                             <TelerikTextBox @bind-Value="@context.Person.FirstName"></TelerikTextBox>
@@ -75,7 +81,7 @@
 
                         @if (context.Organisation != null && context.Organisation.ControllingPerson != null)
                         {
-                             <label class="editor-label">First Name</label>
+                            <label class="editor-label">First Name</label>
                             <TelerikTextBox @bind-Value="@context.Organisation.ControllingPerson.Person.FirstName"></TelerikTextBox>
 
                             <label class="editor-label">Last Name</label>
@@ -95,38 +101,42 @@
 @code {
     public IEnumerable<AEOIUKSubmissionFIReportSubmissionFIReturnAccountData> Data { get; set; }
     public IEnumerable<string> AccountHolderTypes { get; set; }
+    public string FileName { get; set; } = "AEOI_ v2.0_Example_New_Submission 1.xml";
 
     protected override async Task OnInitializedAsync()
     {
-         var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>("api/Data/GetData?filename=AEOI_ v2.0_Example_New_Submission 1.xml");
-         Data = data.Submission.FIReturn.AccountData;
-         AccountHolderTypes = new string[] { "Passive Non Financial Entity with Controlling Person(s)", "Reportable Person (Individual)" };
+        await LoadData();
+        AccountHolderTypes = new string[] { "Passive Non Financial Entity with Controlling Person(s)", "Reportable Person (Individual)" };
     }
 
 
-    private void LoadData()
+    private async Task LoadData()
     {
-        
-        
+        var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}");
+        Data = data.Submission.FIReturn.AccountData;
     }
 
     public void UpdateHandler(ListViewCommandEventArgs args)
     {
-       
+
     }
 
     public void DeleteHandler(ListViewCommandEventArgs args)
     {
-       
+
     }
 
     public void CreateHandler(ListViewCommandEventArgs args)
     {
-       
+
     }
 }
 
 <style>
+    .full-width {
+        width: 100%;
+    }
+
     .k-listview-header {
         padding: 10px 20px;
     }
