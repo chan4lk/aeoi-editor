@@ -1,10 +1,11 @@
 ﻿@using AEOI.Editor.Web.Shared
 @inject HttpClient Http
+@inject ValidationService ValidationService
 <div class="controls">
     <label class="editor-label">File Name</label>
     <TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
     <label class="editor-label">Large Data set</label>
-    <TelerikToggleButton  @bind-Selected="@IsLarge" >Enabled - @IsLarge</TelerikToggleButton>
+    <TelerikToggleButton @bind-Selected="@IsLarge">Enabled - @IsLarge</TelerikToggleButton>
     <label class="editor-label">Number of Records</label>
     <TelerikNumericTextBox Enabled="@IsLarge" Class="full-width" @bind-Value="@Records"></TelerikNumericTextBox>
     <br />
@@ -13,7 +14,7 @@
 
 <TelerikListView Data=@Data
                  Pageable="true"
-                 Height="500px"                 
+                 Height="500px"
                  OnUpdate="@UpdateHandler"
                  OnDelete="@DeleteHandler"
                  OnCreate="@CreateHandler">
@@ -106,6 +107,7 @@
 @code {
     public IEnumerable<AEOIUKSubmissionFIReportSubmissionFIReturnAccountData> Data { get; set; }
     public IEnumerable<string> AccountHolderTypes { get; set; }
+    private AEOIUKSubmissionFIReport report;
     public string FileName { get; set; } = "AEOI_ v2.0_Example_New_Submission 1.xml";
     public bool IsLarge { get; set; }
     public bool IsNotLarge => !IsLarge;
@@ -119,12 +121,29 @@
 
     private async Task LoadData()
     {
-        var data = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}&large={IsLarge}&records={Records}");
-        Data = data.Submission.FIReturn.AccountData;
+        report = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}&large={IsLarge}&records={Records}");
+        Data = report.Submission.FIReturn.AccountData;
     }
 
-    public void UpdateHandler(ListViewCommandEventArgs args)
+    public async Task UpdateHandler(ListViewCommandEventArgs args)
     {
+        var item = args.Item as AEOIUKSubmissionFIReportSubmissionFIReturnAccountData;
+        var original = Data.FirstOrDefault(i => i.AccountAction.AccountRef == item.AccountAction.AccountRef);
+        if (original.Person != null)
+        {
+            original.Person.FirstName = item.Person.FirstName;
+            original.Person.LastName = item.Person.LastName;
+        }
+        else
+        {
+            original.Organisation.ControllingPerson.Person.FirstName = item.Organisation.ControllingPerson.Person.FirstName;
+            original.Organisation.ControllingPerson.Person.LastName = item.Organisation.ControllingPerson.Person.LastName;
+        }
+
+        var errors = await ValidationService.Validate(report);
+
+        Console.WriteLine(errors[0]);
+
     }
 
     public void DeleteHandler(ListViewCommandEventArgs args)
@@ -147,7 +166,7 @@
         padding: 10px 20px;
     }
 
-    .controls{
+    .controls {
         padding: 10px 20px;
         border-width: 1px 1px 1px 1px;
         border-radius: 0;
@@ -155,7 +174,7 @@
         box-shadow: none;
     }
 
-    .k-card{
+    .k-card {
         padding: 10px 20px;
         border-width: 0 0 1px 0;
         border-radius: 0;

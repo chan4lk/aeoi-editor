@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://hmrc.gov.uk/AEOIUKSubmissionFIReport" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:iso="urn:oecd:ties:isofatcatypes:v1" targetNamespace="http://hmrc.gov.uk/AEOIUKSubmissionFIReport" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0">
+	<xs:import namespace="urn:oecd:ties:isofatcatypes:v1" schemaLocation="isofatcatypes_v1.1.xsd"/>
+	<xs:element name="AEOIUKSubmissionFIReport" id="S">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MessageData" type="MessageDataType" id="S1"/>
+				<xs:choice>
+					<xs:element name="Submission" type="SubmissionType" id="S2"/>
+					<xs:element name="VoidSubmission" type="VoidMessageType" id="S3">
+						<xs:annotation>
+							<xs:documentation>Only used if the original submission message is to be deleted</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="SchemaVersion" type="xs:decimal" use="required" id="S0">
+				<xs:annotation>
+					<xs:documentation>Please enter the version of the AEOI UK Submission schema you used to validate the XML.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:attribute name="currCode" type="iso:currCode_Type">
+		<xs:annotation>
+			<xs:documentation>Standard 3 character ISO currency code, please choose from the enumerated list.</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:complexType name="MessageDataType">
+		<xs:sequence>
+			<xs:element name="MessageCategory" type="MessageType" id="S1.1">
+				<xs:annotation>
+					<xs:documentation>The type of message: NewSubmission, SubmissionVariation, SubmissionReplacement or SubmissionVoid</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="XMLTimeStamp" type="xs:dateTime" id="S1.2">
+				<xs:annotation>
+					<xs:documentation>Date and time that the XML was originally created.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AEOIUserId" type="userIdType" id="S1.3">
+				<xs:annotation>
+					<xs:documentation>Unique identifier for the AEOI Portal User. Format: 10 numeric characters</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SubmissionType">
+		<xs:sequence>
+			<xs:element name="ReportingPeriod" type="ReportingPeriodType" id="S2.1">
+				<xs:annotation>
+					<xs:documentation>This should be entered in the format: YYYY-12-31</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="MessageRef" type="MessageRefType" id="S2.2">
+					<xs:annotation>
+						<xs:documentation>Unique reference for the message</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Replacement" type="ReplaceMessageType" id="S2.3">
+					<xs:annotation>
+						<xs:documentation>To be used when you wish to replace a previous message</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+			<xs:element name="FIReturn" type="FIReturnType" id="S2.4" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Holds the Financial Institution's reportable data</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReplaceMessageType">
+		<xs:sequence>
+			<xs:element name="MessageRef" type="MessageRefType" id="S2.3.1">
+				<xs:annotation>
+					<xs:documentation>Unique reference for the message</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ReplacedMessageRef" type="MessageRefType" id="S2.3.2">
+				<xs:annotation>
+					<xs:documentation>The original submission's message reference. This will be used to find the submission that is to be replaced.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FIReturnType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="FIReturnAction" type="FIReturnActionType" id="S2.4.1">
+					<xs:annotation>
+						<xs:documentation/>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="FIRegisterId" type="IdType" id="S2.4.2">
+					<xs:annotation>
+						<xs:documentation>UK identifier for the reportable Financial Institution. This information can be found in the AEOI Service when needed</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DueDiligenceInd" type="ElectionType" id="S2.4.3">
+					<xs:annotation>
+						<xs:documentation>Indicates if the FI has elected to rely on the procedures described in the relevant U.S. Treasury Regulations</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ThresholdInd" type="ElectionType" id="S2.4.4">
+					<xs:annotation>
+						<xs:documentation>Indicates if the FI has elected to apply thresholds in the due diligence process</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="InsuranceElection" type="ElectionType" id="S2.4.5">
+					<xs:annotation>
+						<xs:documentation>Cash Value Insurance Contracts or Annuity Contracts election</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DormantAccElection" type="ElectionType" id="S2.4.6">
+					<xs:annotation>
+						<xs:documentation>Indicates that the FI is not reporting dormant accounts</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:annotation>
+						<xs:documentation/>
+					</xs:annotation>
+					<xs:element name="NilReturn" type="NilReturnType" id="S2.4.7">
+						<xs:annotation>
+							<xs:documentation>Indicates that the FI has no accounts to report</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AccountData" type="AccountDataType" id="S2.4.8" maxOccurs="unbounded"/>
+					<xs:element name="PoolReport" type="PoolReportType" id="S2.4.9" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Should only be used by Bermuda FIs reporting to HMRC</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="NoVariation" type="NoVariationType" id="S2.4.10">
+						<xs:annotation>
+							<xs:documentation>ONLY to be used when there is a variation to the FI Return and no changes to account data</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+			<xs:element name="VoidFIReturn" type="VoidActionType" id="S2.4.11">
+				<xs:annotation>
+					<xs:documentation>Only to be used if a previously submitted FI return needs to be deleted</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="VoidActionType">
+		<xs:sequence>
+			<xs:element name="VoidReference" type="ActionReferenceType" id="v1">
+				<xs:annotation>
+					<xs:documentation>Contains the unique reference of the data that is to be deleted</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="VoidMessageType">
+		<xs:sequence>
+			<xs:element name="MessageRef" type="MessageRefType" id="S3.1">
+				<xs:annotation>
+					<xs:documentation>Unique reference for the message</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VoidMessageRef" type="MessageRefType" id="S3.2">
+				<xs:annotation>
+					<xs:documentation>The original submission's message reference. This will be used to find the submission that is to be deleted.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FIReturnActionType">
+		<xs:sequence>
+			<xs:element name="FIReturnRef" type="ActionReferenceType" id="S2.4.1.1">
+				<xs:annotation>
+					<xs:documentation>Unique reference to identify this FI return</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Action" type="ActionType" id="S2.4.1.2">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AccountDataType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="AccountAction" type="AccountActionType" id="S2.4.8.1"/>
+				<xs:choice>
+					<xs:annotation>
+						<xs:documentation>Account Number or Identifier</xs:documentation>
+					</xs:annotation>
+					<xs:element name="AccountNumber" type="AccountNoInfoType" id="S2.4.8.2">
+						<xs:annotation>
+							<xs:documentation>Should be of a recognised type: IBAN, OBAN, ISIN, OSIN or Other</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AccountIdentifier" type="AccountNoType" id="S2.4.8.3">
+						<xs:annotation>
+							<xs:documentation>To be used where there is no Account Number</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="AccountBalance" type="MonetaryType" id="S2.4.8.4">
+					<xs:annotation>
+						<xs:documentation>Enter the balance for the account. If a Non-participating Financial Institution then please enter 0.00</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="AccountClosedInd" type="BoolIndType" id="S2.4.8.5" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Used to indicate if the account is closed</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="UndocumentedAccountInd" type="BoolIndType" id="S2.4.8.6" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Used to indicate an undocumented account</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DormantAccountInd" type="BoolIndType" id="S2.4.8.7" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Used to indicate a dormant account</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="PaymentData" type="PaymentDataType" id="S2.4.8.8" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="AccountHolderType" type="AccountHolderCodeType" id="S2.4.8.9">
+					<xs:annotation>
+						<xs:documentation>Type of account holder</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="Person" type="PersonInformation" id="S2.4.8.10">
+						<xs:annotation>
+							<xs:documentation/>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Organisation" type="OrganisationType" id="S2.5.8.11">
+						<xs:annotation>
+							<xs:documentation>Use this if the account holder is not an individual</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="NoVariation" type="NoVariationType" id="S2.5.8.12">
+						<xs:annotation>
+							<xs:documentation>Only to be used when there is a variation on the Account data that specifically excludes the Person or Organisation data or other data under those sections.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+			<xs:element name="VoidAccountData" type="VoidActionType" id="S2.4.6.13">
+				<xs:annotation>
+					<xs:documentation>Only to be used to delete the data specified by the AccountRef</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="AccountActionType">
+		<xs:sequence>
+			<xs:element name="AccountRef" type="ActionReferenceType" id="S2.4.6.1.1">
+				<xs:annotation>
+					<xs:documentation>Unique reference to identify this account</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Action" type="ActionType" id="S2.4.6.1.3">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PaymentDataType">
+		<xs:sequence>
+			<xs:element name="PaymentCode" type="PaymentCodeType" id="S2.4.8.8.1">
+				<xs:annotation>
+					<xs:documentation>UK Code for payment type</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PaymentTypeDesc" type="StringMax500_Type" id="S2.4.8.8.2" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional information about the payment</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PaymentAmount" type="PaymentMonetaryType" id="S2.4.8.8.3">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MonetaryType">
+		<xs:simpleContent>
+			<xs:extension base="MonetaryAmountType">
+				<xs:attribute name="currCode" type="iso:currCode_Type" use="required" id="c1">
+					<xs:annotation>
+						<xs:documentation/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="PaymentMonetaryType">
+		<xs:simpleContent>
+			<xs:extension base="NoZeroMonetaryAmountType">
+				<xs:attribute name="currCode" type="iso:currCode_Type" use="required" id="c2">
+					<xs:annotation>
+						<xs:documentation/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="PersonInformation">
+		<xs:sequence>
+			<xs:element name="FirstName" id="n1">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="PersonNameType"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="MiddleName" id="n2" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="PersonNameType"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="LastName" id="n3">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="PersonNameType"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Address"  type="AddressType" id="S2.4.8.10.4"/>
+			<xs:element name="HolderTaxInfo" type="HolderTaxInfoType" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Identification data for the individual</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BirthInfo" type="BirthInfoType" id="b0" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AddressType">
+		<xs:sequence>
+			<xs:element name="BuildingIdentifier" id="a1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="BuildingIdentifierType">
+						<xs:maxLength value="70"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="StreetName" type="StreetType" id="a2" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DistrictName" type="DistrictNameType" id="a3" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="City" type="CityType" id="a4">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PostCode" type="PostCodeType" id="a5" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountryCode" type="iso:CountryCode_Type" id="a6">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrganisationType">
+		<xs:sequence>
+			<xs:element name="OrganisationName" id="S2.5.8.11.1">
+				<xs:annotation>
+					<xs:documentation>Legal name of the account holder</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:restriction base="NameOrganisation_Type">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Address" type="AddressType" id="S2.5.8.11.2"/>
+			<xs:element name="HolderInfo" type="HolderInfoType" id="S2.5.8.11.3" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Identification data for the organisation</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ControllingPerson" type="ControllingPersonType" id="S2.5.8.11.4" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Controlling Person(s) details</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PoolReportType">
+		<xs:choice>
+			<xs:sequence>
+				<xs:element name="PoolReportAction" type="PoolReportActionType" id="S2.4.9.1"/>
+				<xs:element name="AccountCount" type="xs:nonNegativeInteger" id="S2.4.9.2">
+					<xs:annotation>
+						<xs:documentation>Number of accounts that are associated with the pool.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="AccountStatus" type="poolReportType" id="S2.4.9.3">
+					<xs:annotation>
+						<xs:documentation>Status of the account holders or payees within this pool. We are using the US FATCA codes:
+						FATCA201	Recalcitrant account holders with US Indicia
+						FATCA202	Recalcitrant account holders without US Indicia
+						FATCA203	Dormant accounts
+						FATCA204	Non-participating financial institutions
+						FATCA205	Recalcitrant account holders that are US persons
+						FATCA206	Recalcitrant account holders that are passive Non-Financial Foreign Entities</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="PoolBalance" type="MonetaryType" id="S2.4.9.4">
+					<xs:annotation>
+						<xs:documentation>Either the amount of the aggregate balance / value of all accounts within the pool OR in the case of Non-Participating Financial Institutions (NPFI), the amount of aggregate foreign reportable amounts paid to the NPFI within the pool.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:element name="VoidPoolReport" type="VoidActionType" id="S2.4.9.5">
+				<xs:annotation>
+					<xs:documentation>Only to be used if previously submitted Pool Report was a mistake and should be removed completely from that FI's period submission. If completed this will delete the data specified by the PoolReportRef.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="PoolReportActionType">
+		<xs:sequence>
+			<xs:element name="PoolReportRef" type="ActionReferenceType" id="S2.4.9.1.1">
+				<xs:annotation>
+					<xs:documentation>The unique reference (both within this document and within the FI's returns for the Period) to identify this Pool Report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Action" type="ActionType" id="S2.4.9.1.2">
+				<xs:annotation>
+					<xs:documentation>What action to take with the data supplied i.e. Create new record, update existing data or resend data.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HolderInfoType">
+		<xs:sequence>
+			<xs:element name="IN" id="S2.5.8.11.3.1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Identification Number for the Organisation</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="TINType">
+							<xs:attribute name="issuedBy" type="iso:CountryCode_Type" id="S2.5.8.11.3.a1">
+								<xs:annotation>
+									<xs:documentation>Country code of issuer</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+							<xs:attribute name="INType" type="IN_Type" id="S2.5.8.11.3.a2">
+								<xs:annotation>
+									<xs:documentation>Type of Identification Number</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ResCountryCode" type="iso:CountryCode_Type" id="S2.5.8.11.3.2"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HolderTaxInfoType">
+		<xs:sequence>
+			<xs:element name="TIN" id="t1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Tax Identification Number for the Individual</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="TINType">
+							<xs:attribute name="issuedBy" type="iso:CountryCode_Type" id="t1a">
+								<xs:annotation>
+									<xs:documentation>Country code of issuer</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ResCountryCode" type="iso:CountryCode_Type" id="t2"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="NoVariationType">
+		<xs:sequence>
+			<xs:element name="NoChildChange" type="xs:token" fixed="Applied" id="d1">
+				<xs:annotation>
+					<xs:documentation>States there was no need to update any lower-level data. Must always contain "Applied".</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BirthInfoType">
+		<xs:sequence>
+			<xs:element name="BirthDate" type="xs:date" id="b1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Format: YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="City" type="CityType" id="b2" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the town or city where the person was born.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CitySubEntity" type="DistrictNameType" id="b3" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the area/suburb where the person was born.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountryInfo" type="CountryInfoType" id="b4" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ISO Country Code or name of Country if it no longer exists on the ISO list</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CountryInfoType">
+		<xs:choice>
+			<xs:element name="BirthCountryCode" type="iso:CountryCode_Type" id="b4.1">
+				<xs:annotation>
+					<xs:documentation>ISO Country Code</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BirthFormerCountryName" type="CountryNameType" id="b4.2">
+				<xs:annotation>
+					<xs:documentation>Name of Country if it no longer exists on the ISO list</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="ControllingPersonType">
+		<xs:sequence>
+			<xs:element name="Person" type="PersonInformation" id="S2.5.8.11.4.1"/>
+			<xs:element name="CtrlgPersonType" type="CrsCtrlgPersonType_EnumType" id="S2.5.8.11.4.2" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AccountNoInfoType">
+		<xs:simpleContent>
+			<xs:extension base="AccountNoType">
+				<xs:attribute name="AccountNumberType" type="AccountNoEnumType" id="a1.1"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="NameOrganisation_Type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name of organisation</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="StringMinMax1_105_Type"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="MessageType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="NewSubmission"/>
+			<xs:enumeration value="SubmissionVariation"/>
+			<xs:enumeration value="SubmissionReplacement"/>
+			<xs:enumeration value="SubmissionVoid"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="IdType">
+		<xs:restriction base="xs:token">
+			<xs:length value="13"/>
+			<xs:pattern value="[A-Z]{3}[0-9]{10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ReportingPeriodType">
+		<xs:restriction base="xs:token">
+			<xs:length value="10"/>
+			<xs:pattern value="20[0-9]{2}-12-31"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MessageRefType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="24"/>
+			<xs:maxLength value="36"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BoolIndType">
+		<xs:restriction base="xs:byte">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ActionType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="New"/>
+			<xs:enumeration value="Replacement"/>
+			<xs:enumeration value="Variation"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AccountHolderCodeType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="Reportable Person (Individual)"/>
+			<xs:enumeration value="Reportable Entity (Organisation)"/>
+			<xs:enumeration value="Passive Non Financial Entity"/>
+			<xs:enumeration value="Passive Non Financial Entity with Controlling Person(s)"/>
+			<xs:enumeration value="Owner documented Financial Institution (FATCA only)"/>
+			<xs:enumeration value="Non-Participating Foreign Financial Institution (FATCA only)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PersonNameType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BuildingIdentifierType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="70"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StreetType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DistrictNameType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="70"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CityType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="70"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PostCodeType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PaymentCodeType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="00"/>
+			<xs:enumeration value="01"/>
+			<xs:enumeration value="02"/>
+			<xs:enumeration value="03"/>
+			<xs:enumeration value="10"/>
+			<xs:enumeration value="20"/>
+			<xs:enumeration value="90"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MonetaryAmountType">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="16" fixed="false"/>
+			<xs:fractionDigits value="2" fixed="true"/>
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NoZeroMonetaryAmountType">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="16" fixed="false"/>
+			<xs:fractionDigits value="2" fixed="true"/>
+			<xs:minExclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AccountNoType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="5"/>
+			<xs:maxLength value="72"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TINType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="80"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ActionReferenceType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="8"/>
+			<xs:maxLength value="36"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="userIdType">
+		<xs:restriction base="xs:token">
+			<xs:length value="10"/>
+			<xs:pattern value="[0-9]{10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="poolReportType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="FATCA201"/>
+			<xs:enumeration value="FATCA202"/>
+			<xs:enumeration value="FATCA203"/>
+			<xs:enumeration value="FATCA204"/>
+			<xs:enumeration value="FATCA205"/>
+			<xs:enumeration value="FATCA206"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ElectionType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="Yes"/>
+			<xs:enumeration value="No"/>
+			<xs:enumeration value="N/A"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NilReturnType">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="Yes"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CountryNameType">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="105"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AccountNoEnumType">
+		<xs:annotation>
+			<xs:documentation>Account Number type</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="IBAN">
+				<xs:annotation>
+					<xs:documentation>OECD601</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="OBAN">
+				<xs:annotation>
+					<xs:documentation>OECD602</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ISIN">
+				<xs:annotation>
+					<xs:documentation>OECD603</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="OSIN">
+				<xs:annotation>
+					<xs:documentation>OECD604</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Other">
+				<xs:annotation>
+					<xs:documentation>OECD605</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CrsCtrlgPersonType_EnumType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Controlling Person Type</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="CP of legal person - ownership">
+				<xs:annotation>
+					<xs:documentation>CRS801</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal person - other means">
+				<xs:annotation>
+					<xs:documentation>CRS802</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal person - senior managing official">
+				<xs:annotation>
+					<xs:documentation>CRS803</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - trust - settlor">
+				<xs:annotation>
+					<xs:documentation>CRS804</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - trust - trustee">
+				<xs:annotation>
+					<xs:documentation>CRS805</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - trust - protector">
+				<xs:annotation>
+					<xs:documentation>CRS806</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - trust - beneficiary">
+				<xs:annotation>
+					<xs:documentation>CRS807</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - trust - other">
+				<xs:annotation>
+					<xs:documentation>CRS808</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - other - settlor-equivalent">
+				<xs:annotation>
+					<xs:documentation>CRS809</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - other - trustee-equivalent">
+				<xs:annotation>
+					<xs:documentation>CRS810</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - other - protector-equivalent">
+				<xs:annotation>
+					<xs:documentation>CRS811</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - other - beneficiary-equivalent">
+				<xs:annotation>
+					<xs:documentation>CRS812</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CP of legal arrangement - other - other-equivalent">
+				<xs:annotation>
+					<xs:documentation>CRS813</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StringMax500_Type">
+		<xs:annotation>
+			<xs:documentation>Defines a string with maximum length of 500</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:minLength value="0"/>
+			<xs:maxLength value="500"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StringMinMax1_105_Type">
+		<xs:annotation>
+			<xs:documentation>Defines a string with minimum and maximum length of 1 and 105</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="105"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="IN_Type">
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="GIIN">
+				<xs:annotation>
+					<xs:documentation>Global intermediary Identification Number</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="EIN">
+				<xs:annotation>
+					<xs:documentation>Global Entity Identification Number</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="TIN">
+				<xs:annotation>
+					<xs:documentation>Tax Identification Number</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="CRN">
+				<xs:annotation>
+					<xs:documentation>Company Registration Number</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
