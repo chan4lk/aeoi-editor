@@ -1,9 +1,27 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>AEOI Editor</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>AEOI Editor!</h1>
 
-Welcome to your new app.
+Upload your file here.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@inject NavigationManager NavigationManager
+
+<TelerikUpload SaveUrl="@SaveUrl" RemoveUrl="@RemoveUrl"
+               SaveField="file" RemoveField="fileToRemove"
+               AllowedExtensions="@( new List<string>() { ".xml" } )"
+               MaxFileSize="2048000" MinFileSize="1024">
+</TelerikUpload>
+
+@code {
+    // One way to define relative paths is to put the desired URL here.
+    // This can be a full URL such as https://mydomain/myendpoint/save
+    public string SaveUrl => ToAbsoluteUrl("api/upload/save");
+    public string RemoveUrl => ToAbsoluteUrl("api/upload/remove");
+
+    public string ToAbsoluteUrl(string url)
+    {
+        return $"{NavigationManager.BaseUri}{url}";
+    }
+}
