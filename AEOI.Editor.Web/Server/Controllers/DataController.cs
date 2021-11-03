@@ -12,24 +12,38 @@ namespace AEOI.Editor.Web.Server.Controllers
     {
 
         public IWebHostEnvironment HostingEnvironment { get; set; }
+        public ILogger<DataController> Logger { get; }
 
-        public DataController(IWebHostEnvironment hostingEnvironment)
+        public DataController(IWebHostEnvironment hostingEnvironment, ILogger<DataController> logger)
         {
             HostingEnvironment = hostingEnvironment;
+            Logger = logger;
         }
 
         [HttpGet("[action]")]
         public AEOIUKSubmissionFIReport GetData(string fileName)
         {
-            var path = Path.Combine(HostingEnvironment.ContentRootPath, "Uploads", fileName);
+            try
+            {
+                var path = Path.Combine("/tmp", "Uploads", fileName);
 
-            XmlSerializer serializer = new XmlSerializer(typeof(AEOIUKSubmissionFIReport));
+                Logger.LogInformation("upload file path @{path}", path);
 
-            StreamReader reader = new StreamReader(path);
-            var report = (AEOIUKSubmissionFIReport)serializer.Deserialize(reader);
-            reader.Close();
+                XmlSerializer serializer = new XmlSerializer(typeof(AEOIUKSubmissionFIReport));
 
-            return report;
+                StreamReader reader = new StreamReader(path);
+                var report = (AEOIUKSubmissionFIReport)serializer.Deserialize(reader);
+                reader.Close();
+
+                return report;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message, ex);
+                Response.WriteAsync(ex.Message);
+                throw;
+            }
+          
         }
     }
 }

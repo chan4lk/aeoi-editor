@@ -18,8 +18,18 @@
                         <h5 class="k-card-subtitle">@context.AccountHolderType</h5>
                     </div>
                     <div class="product-price">
-                        <div>Unit price: @context.Person.FirstName</div>
-                        <div>Quantity per unit: @context.Person.LastName</div>
+                        @if (context.Person != null)
+                        {
+                             <div>First Name: @context.Person.FirstName</div>
+                            <div>Last Name: @context.Person.LastName</div>
+                        }
+
+                        @if (context.Organisation != null && context.Organisation.ControllingPerson != null)
+                        {
+                             <div>First Name: @context.Organisation.ControllingPerson.Person.FirstName</div>
+                            <div>Last Name: @context.Organisation.ControllingPerson.Person.LastName</div>
+                        }
+                       
                     </div>
                 </div>
             </div>
@@ -48,11 +58,23 @@
                         <label class="editor-label">Account Balance</label>
                         <TelerikNumericTextBox @bind-Value="@context.AccountBalance.Value" Class="mb-sm"></TelerikNumericTextBox>
 
-                        <label class="editor-label">First Name</label>
-                        <TelerikTextBox @bind-Value="@context.Person.FirstName"></TelerikTextBox>
+                         @if (context.Person != null)
+                        {
+                            <label class="editor-label">First Name</label>
+                            <TelerikTextBox @bind-Value="@context.Person.FirstName"></TelerikTextBox>
 
-                        <label class="editor-label">Last Name</label>
-                        <TelerikTextBox @bind-Value="@context.Person.LastName"></TelerikTextBox>
+                            <label class="editor-label">Last Name</label>
+                            <TelerikTextBox @bind-Value="@context.Person.LastName"></TelerikTextBox>
+                        }
+
+                        @if (context.Organisation != null && context.Organisation.ControllingPerson != null)
+                        {
+                             <label class="editor-label">First Name</label>
+                            @*<TelerikTextBox @bind-Value="@context.Organisation.ControllingPerson.Person.FirstName"></TelerikTextBox>*@
+
+                            <label class="editor-label">Last Name</label>
+                            @*<TelerikTextBox @bind-Value="context.Organisation.ControllingPerson.Person.LastName"></TelerikTextBox>*@
+                        }
                     </div>
                 </div>
             </div>

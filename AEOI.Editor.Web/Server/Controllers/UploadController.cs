@@ -29,7 +29,15 @@ namespace MyBlazorApp.Controllers
                     // Some browsers send file names with full path.
                     // We are only interested in the file name.
                     var fileName = Path.GetFileName(fileContent.FileName.ToString().Trim('"'));
-                    var physicalPath = Path.Combine(HostingEnvironment.ContentRootPath, "Uploads", fileName);
+
+                    var directory = Path.Combine("/tmp", "Uploads");
+
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    var physicalPath = Path.Combine(directory, fileName);
 
                     // Implement security mechanisms here - prevent path traversals,
                     // check for allowed extensions, types, size, content, viruses, etc.
@@ -40,11 +48,11 @@ namespace MyBlazorApp.Controllers
                         await file.CopyToAsync(fileStream);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
                     // Implement error handling here, this example merely indicates an upload failure.
                     Response.StatusCode = 500;
-                    await Response.WriteAsync("some error message"); // custom error message
+                    await Response.WriteAsync(ex.Message); // custom error message
                 }
             }
 

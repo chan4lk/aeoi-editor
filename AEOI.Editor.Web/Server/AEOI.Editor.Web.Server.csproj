@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Uploads\AEOI_ v2.0_Example_New_Submission 1.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Uploads\AEOI_ v2.0_Example_New_Submission 1.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0-rc.1.21452.15" />
   </ItemGroup>
 
