@@ -19,7 +19,7 @@ namespace AEOI.Editor.Web.Shared
 
         public async Task<List<string>> Validate(AEOIUKSubmissionFIReport report)
         {
-
+            result.Clear();
             var typesStream = await client.GetStreamAsync("Templates/isofatcatypes_v1.1.xsd");  
             XmlSchema typesSchema = XmlSchema.Read(typesStream, SchemaValidationHandler);
 

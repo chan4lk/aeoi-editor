@@ -104,6 +104,11 @@
     </EditTemplate>
 </TelerikListView>
 
+<div class="controls">
+    <label class="editor-label">Errors</label>
+    <TelerikTextArea AutoSize Class="full-width" @bind-Value="@Errors"></TelerikTextArea>
+</div>
+
 @code {
     public IEnumerable<AEOIUKSubmissionFIReportSubmissionFIReturnAccountData> Data { get; set; }
     public IEnumerable<string> AccountHolderTypes { get; set; }
@@ -112,6 +117,7 @@
     public bool IsLarge { get; set; }
     public bool IsNotLarge => !IsLarge;
     public int Records { get; set; }
+    public string Errors { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,8 +148,14 @@
 
         var errors = await ValidationService.Validate(report);
 
-        Console.WriteLine(errors[0]);
-
+        if(errors.Count == 0)
+        {
+            Errors = string.Empty;
+        }else
+        {
+            Errors = string.Join(Environment.NewLine, errors);
+        }
+        
     }
 
     public void DeleteHandler(ListViewCommandEventArgs args)

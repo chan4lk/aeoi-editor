@@ -615,14 +615,14 @@
     public partial class AEOIUKSubmissionFIReportSubmissionFIReturnAccountDataPaymentData
     {
 
-        private byte paymentCodeField;
+        private string paymentCodeField;
 
         private string paymentTypeDescField;
 
         private AEOIUKSubmissionFIReportSubmissionFIReturnAccountDataPaymentDataPaymentAmount paymentAmountField;
 
         /// <remarks/>
-        public byte PaymentCode
+        public string PaymentCode
         {
             get
             {
