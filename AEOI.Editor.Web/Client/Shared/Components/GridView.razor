@@ -134,28 +134,32 @@
     public async Task UpdateHandler(ListViewCommandEventArgs args)
     {
         var item = args.Item as AEOIUKSubmissionFIReportSubmissionFIReturnAccountData;
-        var original = Data.FirstOrDefault(i => i.AccountAction.AccountRef == item.AccountAction.AccountRef);
-        if (original.Person != null)
+        var originals = Data.Where(i => i.AccountAction.AccountRef == item.AccountAction.AccountRef);
+        foreach (var original in originals)
         {
-            original.Person.FirstName = item.Person.FirstName;
-            original.Person.LastName = item.Person.LastName;
-        }
-        else
-        {
-            original.Organisation.ControllingPerson.Person.FirstName = item.Organisation.ControllingPerson.Person.FirstName;
-            original.Organisation.ControllingPerson.Person.LastName = item.Organisation.ControllingPerson.Person.LastName;
+            if (original.Person != null)
+            {
+                original.Person.FirstName = item.Person.FirstName;
+                original.Person.LastName = item.Person.LastName;
+            }
+            else
+            {
+                original.Organisation.ControllingPerson.Person.FirstName = item.Organisation.ControllingPerson.Person.FirstName;
+                original.Organisation.ControllingPerson.Person.LastName = item.Organisation.ControllingPerson.Person.LastName;
+            }
         }
 
         var errors = await ValidationService.Validate(report);
 
-        if(errors.Count == 0)
+        if (errors.Count == 0)
         {
             Errors = string.Empty;
-        }else
+        }
+        else
         {
             Errors = string.Join(Environment.NewLine, errors);
         }
-        
+
     }
 
     public void DeleteHandler(ListViewCommandEventArgs args)
