@@ -20,16 +20,18 @@ namespace AEOI.Editor.Web.Shared
         public async Task<List<string>> Validate(AEOIUKSubmissionFIReport report)
         {
 
-            var byteOfTheFile = await client.GetStreamAsync("Templates/uk_aeoi_submission_v2.0.xsd");
-         
-            XmlSchema schema = XmlSchema.Read(byteOfTheFile, SchemaValidationHandler);
+            var typesStream = await client.GetStreamAsync("Templates/isofatcatypes_v1.1.xsd");  
+            XmlSchema typesSchema = XmlSchema.Read(typesStream, SchemaValidationHandler);
 
-            Console.WriteLine(schema.SourceUri);
+            var byteOfTheFile = await client.GetStreamAsync("Templates/uk_aeoi_submission_v2.0.xsd");
+            XmlSchema schema = XmlSchema.Read(byteOfTheFile, SchemaValidationHandler);           
 
             var doc = SerializeToXml(report);
-            var node = doc.FirstChild;
 
             doc.Schemas.Add(schema);
+            doc.Schemas.Add(typesSchema);
+
+            doc.Schemas.Compile();
 
             doc.Validate(ValidationEventHandler);
 
