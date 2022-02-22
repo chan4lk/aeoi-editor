@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Telerik.UI.for.Blazor.Trial" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>

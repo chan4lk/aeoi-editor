@@ -11,18 +11,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Uploads\AEOI_ v2.0_Example_New_Submission 1.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0-rc.1.21452.15" />
+    <PackageReference Include="Telerik.UI.for.Blazor.Trial" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Client\AEOI.Editor.Web.Client.csproj" />
     <ProjectReference Include="..\Shared\AEOI.Editor.Web.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Uploads\" />
   </ItemGroup>
 
 
