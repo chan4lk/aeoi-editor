@@ -1,6 +1,8 @@
 ﻿@using AEOI.Editor.Web.Shared
 @inject HttpClient Http
 @inject ValidationService ValidationService
+@inject ElementValidationService ElementValidationService
+
 <div class="controls">
     <label class="editor-label">File Name</label>
     <TelerikTextBox Class="full-width" @bind-Value="@FileName"></TelerikTextBox>
@@ -65,7 +67,7 @@
                         <label class="editor-label">Name</label>
                         @if (context.AccountNumber != null)
                         {
-                            <TelerikTextBox @bind-Value="@context.AccountNumber.Value" Class="mb-sm"></TelerikTextBox>
+                            <TelerikTextBox @bind-Value="@context.AccountNumber.Value" OnChange="()=>ValidationHandler(context)" Class="mb-sm"></TelerikTextBox>
                         }
                         <label class="editor-label">Account Holder Type</label>
                         <TelerikDropDownList Data="@AccountHolderTypes"
@@ -76,24 +78,24 @@
                     </div>
                     <div class="product-price">
                         <label class="editor-label">Account Balance</label>
-                        <TelerikNumericTextBox @bind-Value="@context.AccountBalance.Value" Class="mb-sm"></TelerikNumericTextBox>
+                        <TelerikNumericTextBox @bind-Value="@context.AccountBalance.Value"   Class="mb-sm"></TelerikNumericTextBox>
 
                         @if (context.Person != null)
                         {
                             <label class="editor-label">First Name</label>
-                            <TelerikTextBox @bind-Value="@context.Person.FirstName"></TelerikTextBox>
+                            <TelerikTextBox @bind-Value="@context.Person.FirstName" OnChange="()=>ValidationHandler(context)"></TelerikTextBox>
 
                             <label class="editor-label">Last Name</label>
-                            <TelerikTextBox @bind-Value="@context.Person.LastName"></TelerikTextBox>
+                            <TelerikTextBox @bind-Value="@context.Person.LastName" OnChange="()=>ValidationHandler(context)"></TelerikTextBox>
                         }
 
                         @if (context.Organisation != null && context.Organisation.ControllingPerson != null)
                         {
                             <label class="editor-label">First Name</label>
-                            <TelerikTextBox @bind-Value="@context.Organisation.ControllingPerson.Person.FirstName"></TelerikTextBox>
+                            <TelerikTextBox @bind-Value="@context.Organisation.ControllingPerson.Person.FirstName" OnChange="()=>ValidationHandler(context)"></TelerikTextBox>
 
                             <label class="editor-label">Last Name</label>
-                            <TelerikTextBox @bind-Value="context.Organisation.ControllingPerson.Person.LastName"></TelerikTextBox>
+                            <TelerikTextBox @bind-Value="context.Organisation.ControllingPerson.Person.LastName" OnChange="()=>ValidationHandler(context)"></TelerikTextBox>
                         }
                     </div>
                 </div>
@@ -135,10 +137,20 @@
     {
         report = await Http.GetFromJsonAsync<AEOIUKSubmissionFIReport>($"api/Data/GetData?filename={FileName}&large={IsLarge}&records={Records}");
         Data = report.Submission.FIReturn.AccountData;
+
+    }
+
+    public async Task ValidationHandler(AEOIUKSubmissionFIReportSubmissionFIReturnAccountData Item)
+    {
+        Console.WriteLine("Triggering ValidationHandler");
+        var errors = await ElementValidationService.Validate("FirstName",report);
+        string combindedString = string.Join( ",", errors.ToArray());
+        Console.WriteLine("Validation String: " + combindedString);
     }
 
     public async Task UpdateHandler(ListViewCommandEventArgs args)
     {
+        Console.WriteLine("UpdateHandler");
         var item = args.Item as AEOIUKSubmissionFIReportSubmissionFIReturnAccountData;
         var originals = Data.Where(i => i.AccountAction.AccountRef == item.AccountAction.AccountRef);
         foreach (var original in originals)
@@ -156,6 +168,10 @@
         }
 
         var errors = await ValidationService.Validate(report);
+        //var errors = await ElementValidationService.Validate(report);
+        string combindedString = string.Join( ",", errors.ToArray());
+        Console.WriteLine("Validation String: " + combindedString);
+
 
         if (errors.Count == 0)
         {
