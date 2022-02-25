@@ -1,4 +1,6 @@
-﻿namespace AEOI.Editor.Web.Shared
+﻿using System.Xml.Serialization;
+
+namespace AEOI.Editor.Web.Shared
 {
 
     // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
@@ -17,6 +19,7 @@
         private decimal schemaVersionField;
 
         /// <remarks/>
+        [XmlElementAttribute("MessageData")]
         public AEOIUKSubmissionFIReportMessageData MessageData
         {
             get
@@ -30,6 +33,7 @@
         }
 
         /// <remarks/>
+        [XmlElementAttribute("Submission")]
         public AEOIUKSubmissionFIReportSubmission Submission
         {
             get
@@ -43,7 +47,7 @@
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
+        //[XmlAttribute("SchemaVersion")]
         public decimal SchemaVersion
         {
             get

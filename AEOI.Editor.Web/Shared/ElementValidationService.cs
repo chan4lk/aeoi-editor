@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Collections;
+using System.Diagnostics;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using System.Diagnostics;
 
 namespace AEOI.Editor.Web.Shared
 {
@@ -18,6 +18,10 @@ namespace AEOI.Editor.Web.Shared
         private List<string> result = new List<string>();
         private XmlSchema typesSchema;
         private XmlSchema schema;
+        private string nameSpaceUri = "http://hmrc.gov.uk/AEOIUKSubmissionFIReport";
+
+        private XmlSchemaInfo schemaInfo = new XmlSchemaInfo();
+        private object dateTimeGetterContent;
 
         public ElementValidationService(HttpClient client, ILogger<ElementValidationService> logger)
         {
@@ -57,7 +61,7 @@ namespace AEOI.Editor.Web.Shared
             return document;
         }
 
-        public async Task<List<string>> Validate(string elementName,AEOIUKSubmissionFIReport report)
+        public async Task<List<string>> Validate(string elementName, AEOIUKSubmissionFIReport report)
         {
             try
             {
@@ -66,18 +70,21 @@ namespace AEOI.Editor.Web.Shared
                 result.Clear();
                 await LoadSchema();
 
-                var xmlDoc = SerializeToXml(report);
+                XmlDocument xmlDoc = SerializeToXml(report);
+
+                // The XmlSerializer object.
+                //XmlSerializer serializer = new XmlSerializer(typeof(AEOIUKSubmissionFIReport));
+                //AEOIUKSubmissionFIReport books = (AEOIUKSubmissionFIReport)serializer.Deserialize(reader);
 
                 // XMLDocument to XMLReader conversion
                 XmlReader reader = new XmlNodeReader(xmlDoc);
 
                 // The XmlSchemaSet object containing the schema used to validate the XML document.
                 XmlSchemaSet schemaSet = new XmlSchemaSet();
-                schemaSet.Add(schema);
                 schemaSet.Add(typesSchema);
-                    
-                // The Xml
-                // Manager object used to handle namespaces.
+                schemaSet.Add(schema);
+
+                // The XmlManager object used to handle namespaces.
                 XmlNamespaceManager manager = new XmlNamespaceManager(reader.NameTable);
 
                 // Assign a ValidationEventHandler to handle schema validation warnings and errors.
@@ -88,21 +95,64 @@ namespace AEOI.Editor.Web.Shared
                 validator.Initialize();
                 logger.LogError("Validation Initialized");
 
+
                 // Validate the element, verify that all required attributes are present
                 // and prepare to validate child content.
-                validator.ValidateElement("PersonInformation", "http://hmrc.gov.uk/AEOIUKSubmissionFIReport", null);
+                validator.ValidateElement("AEOIUKSubmissionFIReport", nameSpaceUri, null);
+                validator.ValidateEndElement(null);
 
                 validator.GetUnspecifiedDefaultAttributes(new ArrayList());
                 validator.ValidateEndOfAttributes(null);
 
-                // Get the next exptected element in the bookstore context.
+                // Get the next expected element in the AEOIUKSubmissionFIReport context.
                 XmlSchemaParticle[] particles = validator.GetExpectedParticles();
-                XmlSchemaElement nextElement = particles[0] as XmlSchemaElement;
+                XmlSchemaElement nextElement;
+                foreach (XmlSchemaParticle particle in particles)
+                {
+                    nextElement = particle as XmlSchemaElement;
+                    logger.LogInformation("Expected Element: '{0}'", nextElement.Name);
+                }
+
+                // Validate the MessageData Element
+                validator.ValidateElement("MessageData", nameSpaceUri, null);
+                validator.ValidateEndElement(null);
+
+                // Get the next exptected element in the AEOIUKSubmissionFIReport context.
+                particles = validator.GetExpectedParticles();
+                nextElement = particles[0] as XmlSchemaElement;
                 logger.LogInformation("Expected Element: '{0}'", nextElement.Name);
 
                 DisplaySchemaInfo();
 
-                // Validate the content of the bookstore element.
+                foreach (AEOIUKSubmissionFIReportSubmissionFIReturnAccountData account in report.Submission.FIReturn.AccountData)
+                {
+                    if (account.Person != null)
+                    {
+                        validator.ValidateElement("Person", nameSpaceUri, null);
+                        // Get the exptected attributes for the Person element.
+                        Console.Write("\nExpected attributes: ");
+                        XmlSchemaAttribute[] attributes = validator.GetExpectedAttributes();
+                        //foreach (XmlSchemaAttribute attribute in attributes)
+                        //{
+                        //    Console.Write("'{0}' ", attribute.Name);
+                        //}
+                        if (account.Person.FirstName != null)
+                        {
+                            validator.ValidateAttribute("FirstName", "", account.Person.FirstName, schemaInfo);
+                        }
+                        if (account.Person.LastName != null)
+                        {
+                            validator.ValidateAttribute("LastName", "", account.Person.LastName, schemaInfo);
+                        }
+
+                        validator.ValidateAttribute("Address", "", account.Person.FirstName, schemaInfo);
+
+                        DisplaySchemaInfo();
+                    }
+
+                }
+
+                // Validate the content of the AEOIUKSubmissionFIReport element.
                 validator.ValidateEndElement(null);
 
                 // Close the XmlReader object.
@@ -119,21 +169,7 @@ namespace AEOI.Editor.Web.Shared
             }
         }
 
-        static XmlSchemaInfo schemaInfo = new XmlSchemaInfo();
-        static object dateTimeGetterContent;
-
-        static object dateTimeGetterHandle()
-        {
-            return dateTimeGetterContent;
-        }
-
-        static XmlValueGetter dateTimeGetter(DateTime dateTime)
-        {
-            dateTimeGetterContent = dateTime;
-            return new XmlValueGetter(dateTimeGetterHandle);
-        }
-
-        static void DisplaySchemaInfo()
+        private void DisplaySchemaInfo()
         {
             if (schemaInfo.SchemaElement != null)
             {
@@ -147,12 +183,13 @@ namespace AEOI.Editor.Web.Shared
             }
         }
 
-        static void SchemaValidationEventHandler(object sender, ValidationEventArgs e)
+        private void SchemaValidationEventHandler(object sender, ValidationEventArgs e)
         {
             switch (e.Severity)
             {
                 case XmlSeverityType.Error:
                     Console.WriteLine("\nError: {0}", e.Message);
+                    result.Add(e.Message);
                     break;
                 case XmlSeverityType.Warning:
                     Console.WriteLine("\nWarning: {0}", e.Message);
@@ -160,48 +197,4 @@ namespace AEOI.Editor.Web.Shared
             }
         }
     }
-
-    [XmlRootAttribute("bookstore", Namespace = "http://www.contoso.com/books", IsNullable = false)]
-    public class ContosoBooks
-    {
-        [XmlElementAttribute("book")]
-        public BookType[] Book;
-    }
-
-    public class BookType
-    {
-        [XmlAttributeAttribute("genre")]
-        public string Genre;
-
-        [XmlAttributeAttribute("publicationdate", DataType = "date")]
-        public DateTime PublicationDate;
-
-        [XmlAttributeAttribute("ISBN")]
-        public string Isbn;
-
-        [XmlElementAttribute("title")]
-        public string Title;
-
-        [XmlElementAttribute("author")]
-        public BookAuthor Author;
-
-        [XmlElementAttribute("price")]
-        public Decimal Price;
-    }
-
-
-    public class BookAuthor
-    {
-        [XmlElementAttribute("name")]
-        public string Name;
-
-        [XmlElementAttribute("first-name")]
-        public string FirstName;
-
-        [XmlElementAttribute("last-name")]
-        public string LastName;
-    }
-
-
-
 }
