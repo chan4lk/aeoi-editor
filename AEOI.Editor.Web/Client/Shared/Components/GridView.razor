@@ -144,6 +144,9 @@
     {
         Console.WriteLine("Triggering ValidationHandler");
         var errors = await ElementValidationService.Validate("FirstName",report);
+        //var errors = await ValidationService.Validate(Item);
+
+        Errors = string.Join(Environment.NewLine, errors);
         string combindedString = string.Join( ",", errors.ToArray());
         Console.WriteLine("Validation String: " + combindedString);
     }
